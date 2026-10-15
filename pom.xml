@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Название и версия нашего Maven-проекта. -->
+    <groupId>org.example</groupId>
+    <artifactId>media-hub</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- Компилируем проект для выбранного в IntelliJ JDK 24. -->
+        <maven.compiler.release>24</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Одну версию используем для всех модулей JavaFX. -->
+        <javafx.version>24.0.2</javafx.version>
+    </properties>
+
+    <dependencies>
+        <!-- Кнопки, надписи, списки и другие элементы интерфейса. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- Позже понадобится для воспроизведения аудио и видео. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Даёт команду javafx:run для запуска приложения. -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <!-- Полное имя класса создадим на следующем шаге. -->
+                    <mainClass>org.example.mediahub.MainApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
