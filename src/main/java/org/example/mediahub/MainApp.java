@@ -8,12 +8,14 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.example.mediahub.model.Track;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ListView;
 
 import java.net.URL;
 
 /**
- * Entry point for the JavaFX application.
- * For now, it only displays a window; player features will be added later.
+ * Entry point for the JavaFX media player prototype.
  */
 public class MainApp extends Application {
 
@@ -25,34 +27,78 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         Button playButton = new Button("Play");
 
-        Label statusLabel = new Label("Ready");
+        // Keep the displayed title and resource path together.
+        Track sampleTrack = new Track("Sample track", "/media/sample.mp3");
 
-        // Look up the file in src/main/resources/media.
-        URL audioResource = getClass().getResource("/media/sample.mp3");
+        ListView<Track> trackList = new ListView<>(
+                FXCollections.observableArrayList(
+                        sampleTrack,
+                        new Track("Sample track 1", "/media/sample1.mp3"),
+                        new Track("Sample track 2", "/media/sample2.mp3")
+                )
+        );
 
-        if (audioResource == null) {
-            // Disable Play if the resource is missing.
-            playButton.setDisable(true);
-            statusLabel.setText("Audio file not found: /media/sample.mp3");
-        } else {
-            // Convert the resource URL to the format required by JavaFX Media.
-            Media media = new Media(audioResource.toExternalForm());
-            mediaPlayer = new MediaPlayer(media);
+// Make the initial selection visible in the playlist.
+        trackList.getSelectionModel().select(sampleTrack);
 
-            // Update the label when the media is ready or starts playing.
-            mediaPlayer.setOnReady(() -> statusLabel.setText("Audio ready"));
-            mediaPlayer.setOnPlaying(() -> statusLabel.setText("Playing"));
+        Label statusLabel = new Label("Ready: " + sampleTrack.getTitle());
 
-            // Display playback errors in the window.
-            mediaPlayer.setOnError(() ->
-                    statusLabel.setText("Playback error: " + mediaPlayer.getError().getMessage())
-            );
+        // Play the currently selected track.
+        playButton.setOnAction(event -> {
+            if (mediaPlayer != null) {
+                mediaPlayer.play();
+            }
+        });
 
-            // Play the audio when the button is clicked.
-            playButton.setOnAction( event-> mediaPlayer.play());
-        }
+        // Load and play a new track when the selection changes.
+        trackList.getSelectionModel().selectedItemProperty().addListener(
+                (observable, previousTrack, selectedTrack) -> {
+                    if (selectedTrack == null) {
+                        return;
+                    }
 
-        VBox root = new VBox(16, statusLabel, playButton);
+                    // Stop the previous track and release its resources.
+                    if (mediaPlayer != null) {
+                        mediaPlayer.stop();
+                        mediaPlayer.dispose();
+                        mediaPlayer = null;
+                    }
+
+                    URL audioResource = getClass().getResource(selectedTrack.getResourcePath());
+                    if (audioResource == null) {
+                        statusLabel.setText("Audio file not found: " + selectedTrack.getResourcePath());
+                        return;
+                    }
+
+                    try {
+                        Media media = new Media(audioResource.toExternalForm());
+                        mediaPlayer = new MediaPlayer(media);
+
+                        // Keep a stable reference for callbacks belonging to this track.
+                        MediaPlayer playerForTrack = mediaPlayer;
+
+                        // Update the visible status for the selected track.
+                        mediaPlayer.setOnReady(() ->
+                                statusLabel.setText("Ready: " + selectedTrack.getTitle())
+                        );
+                        mediaPlayer.setOnPlaying(() ->
+                                statusLabel.setText("Playing: " + selectedTrack.getTitle())
+                        );
+                        mediaPlayer.setOnError(() ->
+                                statusLabel.setText("Playback error: " + playerForTrack.getError().getMessage())
+                        );
+
+                        mediaPlayer.play();
+                    } catch (RuntimeException exception) {
+                        statusLabel.setText("Could not load: " + selectedTrack.getTitle());
+                    }
+                }
+        );
+
+        // Trigger the selection listener for the initial track.
+        trackList.getSelectionModel().clearSelection();
+        trackList.getSelectionModel().select(sampleTrack);
+        VBox root = new VBox(16, trackList, statusLabel, playButton);
         root.setStyle("-fx-padding: 24;");
 
         // Create a scene with an initial size of 800 × 500 pixels.

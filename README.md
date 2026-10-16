@@ -10,6 +10,8 @@ full-featured media library with its own REST API and PostgreSQL database.
 ## Current functionality
 
 - Play one bundled MP3 file using JavaFX `MediaPlayer`.
+- Select a track from a playlist to start playback.
+- Stop and dispose of the previous player when switching tracks.
 - Display playback status or an error message in the application window.
 - Release the media player when the application closes.
 
@@ -37,9 +39,9 @@ application in a working state.
 
 - [x] Create a JavaFX project and open the application window.
 - [x] Play one bundled audio file.
-- [ ] Provide a predefined playlist with at least three audio files.
+- [x] Provide a predefined playlist with at least three audio files.
 - [ ] Add Play, Pause, Stop, Next, and Previous controls.
-- [ ] Stop and dispose of the old player when switching tracks.
+- [x] Stop and dispose of the old player when switching tracks.
 - [ ] Add volume control.
 - [ ] Display playback progress and elapsed/total time.
 - [ ] Synchronize player state and UI with JavaFX properties and bindings.
