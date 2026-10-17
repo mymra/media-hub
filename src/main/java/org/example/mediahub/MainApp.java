@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import org.example.mediahub.model.Track;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Slider;
 
 import java.net.URL;
 
@@ -26,6 +28,14 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         Button playButton = new Button("Play");
+        Button pauseButton = new Button("Pause");
+        Button stopButton = new Button("Stop");
+        Button previousButton = new Button("Previous");
+        Button nextButton = new Button("Next");
+
+        // Use the same 0.0–1.0 range as MediaPlayer.volumeProperty().
+        Slider volumeSlider = new Slider(0.0, 1.0, 0.5);
+        volumeSlider.setPrefWidth(150);
 
         // Keep the displayed title and resource path together.
         Track sampleTrack = new Track("Sample track", "/media/sample.mp3");
@@ -38,7 +48,7 @@ public class MainApp extends Application {
                 )
         );
 
-// Make the initial selection visible in the playlist.
+        // Make the initial selection visible in the playlist.
         trackList.getSelectionModel().select(sampleTrack);
 
         Label statusLabel = new Label("Ready: " + sampleTrack.getTitle());
@@ -47,6 +57,36 @@ public class MainApp extends Application {
         playButton.setOnAction(event -> {
             if (mediaPlayer != null) {
                 mediaPlayer.play();
+            }
+        });
+
+        // Pause the currently loaded track without resetting its position.
+        pauseButton.setOnAction(event -> {
+            if (mediaPlayer != null) {
+                mediaPlayer.pause();
+            }
+        });
+
+        // Stop the currently loaded track and reset its position.
+        stopButton.setOnAction(event -> {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+            }
+        });
+
+        // Select the previous track; the selection listener handles playback.
+        previousButton.setOnAction(event -> {
+            int index = trackList.getSelectionModel().getSelectedIndex();
+            if (index > 0) {
+                trackList.getSelectionModel().select(index - 1);
+            }
+        });
+
+        // Select the next track; the selection listener handles playback.
+        nextButton.setOnAction(event -> {
+            int index = trackList.getSelectionModel().getSelectedIndex();
+            if (index >= 0 && index < trackList.getItems().size() - 1) {
+                trackList.getSelectionModel().select(index + 1);
             }
         });
 
@@ -60,6 +100,7 @@ public class MainApp extends Application {
                     // Stop the previous track and release its resources.
                     if (mediaPlayer != null) {
                         mediaPlayer.stop();
+                        mediaPlayer.volumeProperty().unbind();
                         mediaPlayer.dispose();
                         mediaPlayer = null;
                     }
@@ -74,6 +115,9 @@ public class MainApp extends Application {
                         Media media = new Media(audioResource.toExternalForm());
                         mediaPlayer = new MediaPlayer(media);
 
+                        // Let the slider control the volume of the current player.
+                        mediaPlayer.volumeProperty().bind(volumeSlider.valueProperty());
+
                         // Keep a stable reference for callbacks belonging to this track.
                         MediaPlayer playerForTrack = mediaPlayer;
 
@@ -83,6 +127,14 @@ public class MainApp extends Application {
                         );
                         mediaPlayer.setOnPlaying(() ->
                                 statusLabel.setText("Playing: " + selectedTrack.getTitle())
+                        );
+
+                        // Reflect playback state changes in the user interface.
+                        mediaPlayer.setOnPaused(() ->
+                                statusLabel.setText("Paused: " + selectedTrack.getTitle())
+                        );
+                        mediaPlayer.setOnStopped(() ->
+                                statusLabel.setText("Stopped: " + selectedTrack.getTitle())
                         );
                         mediaPlayer.setOnError(() ->
                                 statusLabel.setText("Playback error: " + playerForTrack.getError().getMessage())
@@ -98,7 +150,11 @@ public class MainApp extends Application {
         // Trigger the selection listener for the initial track.
         trackList.getSelectionModel().clearSelection();
         trackList.getSelectionModel().select(sampleTrack);
-        VBox root = new VBox(16, trackList, statusLabel, playButton);
+
+        // Place playback controls on one horizontal row.
+        HBox playbackControls = new HBox(8, previousButton, playButton, pauseButton, stopButton, nextButton);
+        HBox volumeControls = new HBox(8, new Label("Volume"), volumeSlider);
+        VBox root = new VBox(16, trackList, statusLabel, playbackControls, volumeControls);
         root.setStyle("-fx-padding: 24;");
 
         // Create a scene with an initial size of 800 × 500 pixels.
