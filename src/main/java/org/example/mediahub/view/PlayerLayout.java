@@ -10,6 +10,8 @@ import javafx.scene.layout.VBox;
 import org.example.mediahub.model.Track;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
+import javafx.beans.binding.Bindings;
+import javafx.scene.layout.StackPane;
 
 
 /**
@@ -17,6 +19,7 @@ import javafx.scene.layout.Priority;
  * Playback behavior will be connected by a separate controller.
  */
 public class PlayerLayout {
+
 
     public final Button playButton = new Button("Play");
     public final Button pauseButton = new Button("Pause");
@@ -28,6 +31,11 @@ public class PlayerLayout {
     public final ListView<Track> trackList = new ListView<>();
 
     public final Label statusLabel = new Label("Ready");
+
+    // Displays the title of the selected track in the center panel.
+    public final Label trackTitleLabel = new Label("No track selected");
+
+
     public final Label timeLabel = new Label("00:00");
     public final Label durationLabel = new Label("00:00");
 
@@ -37,6 +45,10 @@ public class PlayerLayout {
     private final BorderPane root;
 
     public PlayerLayout() {
+
+        // Apply a dedicated style to the selected track title.
+        trackTitleLabel.getStyleClass().add("track-title");
+
         // Reserve enough space for the controls below the playlist.
         volumeSlider.setPrefWidth(150);
         progressBar.setPrefWidth(400);
@@ -54,10 +66,23 @@ public class PlayerLayout {
         trackList.setPrefHeight(400);
         VBox.setVgrow(trackList, Priority.ALWAYS);
 
-// Reserve the center for track information and future visual content.
-        VBox contentPanel = new VBox(16, new Label("Now playing"), statusLabel);
-        contentPanel.setStyle("-fx-padding: 20;");
+        // Placeholder for album artwork or a future video display.
+        Label artworkSymbol = new Label("♫");
+        StackPane artworkCard = new StackPane(artworkSymbol);
+        artworkCard.setPrefSize(240, 240);
+        artworkCard.setMaxSize(240, 240);
 
+        artworkCard.getStyleClass().add("artwork-card");
+        artworkSymbol.getStyleClass().add("artwork-symbol");
+
+// Reserve the center for track information and future visual content.
+        VBox contentPanel = new VBox(
+                16,
+                new Label("Now playing"),
+                trackTitleLabel,
+                artworkCard,
+                statusLabel
+        );
 // Keep playback controls visible at the bottom of the window.
         VBox controlsPanel = new VBox(
                 12, progressBar, timeControls, playbackControls, volumeControls
@@ -67,8 +92,26 @@ public class PlayerLayout {
         root = new BorderPane();
         root.setLeft(playlistPanel);
         root.setCenter(contentPanel);
+
+        // Keep panel spacing in CSS instead of hard-coding it in the controller.
+        playlistPanel.getStyleClass().add("playlist-panel");
+        contentPanel.getStyleClass().add("content-panel");
+
         root.setBottom(controlsPanel);
         root.setStyle("-fx-padding: 16;");
+
+        // Update the title automatically when the playlist selection changes.
+        trackTitleLabel.textProperty().bind(
+                Bindings.createStringBinding(
+                        () -> {
+                            Track selectedTrack = trackList.getSelectionModel().getSelectedItem();
+                            return selectedTrack == null
+                                    ? "No track selected"
+                                    : selectedTrack.getTitle();
+                        },
+                        trackList.getSelectionModel().selectedItemProperty()
+                )
+        );
     }
 
     public BorderPane getRoot() {

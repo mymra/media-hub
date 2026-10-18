@@ -2,6 +2,7 @@ package org.example.mediahub;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.example.mediahub.model.Track;
 import javafx.scene.control.ListView;
@@ -58,7 +59,17 @@ public class MainApp extends Application {
 
         // Configure and display the main window.
         stage.setTitle("Media Hub");
+        // Load the window icon from the application's resources.
+        var iconResource = getClass().getResource("/images/media-hub-icon.png");
+        if (iconResource != null) {
+            stage.getIcons().add(new Image(iconResource.toExternalForm()));
+        }
         stage.setScene(scene);
+
+        // Prevent resizing the window below the usable desktop layout size.
+        stage.setMinWidth(850);
+        stage.setMinHeight(550);
+
         stage.show();
     }
     @Override

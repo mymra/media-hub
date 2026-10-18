@@ -57,3 +57,30 @@
     -fx-background-color: #42b3ff;
     -fx-background-radius: 6;
 }
+
+/* Prominent title for the selected track. */
+.track-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+/* Artwork placeholder in the center panel. */
+.artwork-card {
+    -fx-background-color: linear-gradient(to bottom right, #245aa8, #513b9a);
+    -fx-background-radius: 18;
+    -fx-border-color: #647ba5;
+    -fx-border-radius: 18;
+}
+
+.artwork-symbol {
+    -fx-font-size: 96px;
+    -fx-text-fill: #ffffff;
+}
+/* Separate the playlist from the central content. */
+.playlist-panel {
+    -fx-padding: 0 20 0 0;
+}
+
+.content-panel {
+    -fx-padding: 0 0 0 20;
+}
