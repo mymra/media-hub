@@ -114,6 +114,15 @@ public class MainApp extends Application {
 
                     // Stop the previous track and release its resources.
                     if (mediaPlayer != null) {
+
+                        // Prevent callbacks from the previous track from overwriting the new status.
+                        mediaPlayer.setOnReady(null);
+                        mediaPlayer.setOnPlaying(null);
+                        mediaPlayer.setOnPaused(null);
+                        mediaPlayer.setOnStopped(null);
+                        mediaPlayer.setOnEndOfMedia(null);
+                        mediaPlayer.setOnError(null);
+
                         mediaPlayer.stop();
                         mediaPlayer.volumeProperty().unbind();
                         timeLabel.textProperty().unbind();
