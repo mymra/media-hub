@@ -15,7 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.ProgressBar;
-
+import org.example.mediahub.view.PlayerLayout;
 
 import java.net.URL;
 
@@ -30,43 +30,35 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        Button playButton = new Button("Play");
-        Button pauseButton = new Button("Pause");
-        Button stopButton = new Button("Stop");
-        Button previousButton = new Button("Previous");
-        Button nextButton = new Button("Next");
+        // Create the controls used by this window.
+        PlayerLayout layout = new PlayerLayout();
+        // Use the controls created by PlayerLayout.
+        Button playButton = layout.playButton;
+        Button pauseButton = layout.pauseButton;
+        Button stopButton = layout.stopButton;
+        Button previousButton = layout.previousButton;
+        Button nextButton = layout.nextButton;
 
-        // Use the same 0.0–1.0 range as MediaPlayer.volumeProperty().
-        Slider volumeSlider = new Slider(0.0, 1.0, 0.5);
-        volumeSlider.setPrefWidth(150);
+        Slider volumeSlider = layout.volumeSlider;
+        ListView<Track> trackList = layout.trackList;
 
-        // Keep the displayed title and resource path together.
+        Label statusLabel = layout.statusLabel;
+        Label timeLabel = layout.timeLabel;
+        Label durationLabel = layout.durationLabel;
+        ProgressBar progressBar = layout.progressBar;
+
+        // Add each track as a separate item in the playlist.
         Track sampleTrack = new Track("Sample track", "/media/sample.mp3");
 
-        ListView<Track> trackList = new ListView<>(
-                FXCollections.observableArrayList(
-                        sampleTrack,
-                        new Track("Sample track 1", "/media/sample1.mp3"),
-                        new Track("Sample track 2", "/media/sample2.mp3")
-                )
+        trackList.getItems().addAll(
+                sampleTrack,
+                new Track("Sample track 1", "/media/sample1.mp3"),
+                new Track("Sample track 2", "/media/sample2.mp3")
         );
-
-        // Reserve space for the player controls below the playlist.
-        trackList.setPrefHeight(250);
 
         // Make the initial selection visible in the playlist.
         trackList.getSelectionModel().select(sampleTrack);
 
-        Label statusLabel = new Label("Ready: " + sampleTrack.getTitle());
-        Label timeLabel = new Label("00:00");
-        Label durationLabel = new Label("00:00");
-
-        // ProgressBar expects a value between 0.0 and 1.0.
-        ProgressBar progressBar = new ProgressBar(0);
-
-        // Give the bar a visible width before the layout stretches it.
-        progressBar.setPrefWidth(400);
-        progressBar.setMaxWidth(Double.MAX_VALUE);
 
         // Play the currently selected track.
         playButton.setOnAction(event -> {
@@ -233,30 +225,9 @@ public class MainApp extends Application {
         trackList.getSelectionModel().clearSelection();
         trackList.getSelectionModel().select(sampleTrack);
 
-        // Place playback controls on one horizontal row.
-        HBox playbackControls = new HBox(8, previousButton, playButton, pauseButton, stopButton, nextButton);
-        HBox volumeControls = new HBox(8, new Label("Volume"), volumeSlider);
 
-        // Display elapsed and total time on the same row.
-        HBox timeControls = new HBox(
-                4,
-                timeLabel,
-                new Label("/"),
-                durationLabel
-        );
-        VBox root = new VBox(
-                16,
-                trackList,
-                statusLabel,
-                progressBar,
-                timeControls,
-                playbackControls,
-                volumeControls
-        );
-        root.setStyle("-fx-padding: 24;");
-
-        // Create a scene with an initial size of 800 × 500 pixels.
-        Scene scene = new Scene(root, 800, 500);
+        // Display the controls assembled by PlayerLayout.
+        Scene scene = new Scene(layout.getRoot(), 800, 500);
 
         // Configure and display the main window.
         stage.setTitle("Media Hub");
