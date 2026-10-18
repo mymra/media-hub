@@ -201,6 +201,11 @@ public class MainApp extends Application {
                         mediaPlayer.setOnPaused(() ->
                                 statusLabel.setText("Paused: " + selectedTrack.getTitle())
                         );
+
+                        // Show that playback reached the end of the selected track.
+                        playerForTrack.setOnEndOfMedia(() ->
+                                statusLabel.setText("Finished: " + selectedTrack.getTitle())
+                        );
                         mediaPlayer.setOnStopped(() ->
                                 statusLabel.setText("Stopped: " + selectedTrack.getTitle())
                         );
