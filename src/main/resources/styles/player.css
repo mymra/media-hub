@@ -1,0 +1,59 @@
+/* Base colors and typography for the application. */
+.root {
+    -fx-background-color: #121826;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Default text color. */
+.label {
+    -fx-text-fill: #e7edf8;
+}
+
+/* Make the playlist distinct from the player area. */
+.list-view {
+    -fx-background-color: #1c2638;
+    -fx-control-inner-background: #1c2638;
+    -fx-border-color: #34435a;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e7edf8;
+    -fx-padding: 10 12;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #245aa8;
+    -fx-text-fill: white;
+}
+
+/* Playback buttons. */
+.button {
+    -fx-background-color: #2b3b54;
+    -fx-text-fill: #f4f7fc;
+    -fx-background-radius: 8;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #3d5577;
+}
+
+.button:pressed {
+    -fx-background-color: #1c7ed6;
+}
+
+/* Playback progress. */
+.progress-bar > .track {
+    -fx-background-color: #2b3b54;
+    -fx-background-radius: 6;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: #42b3ff;
+    -fx-background-radius: 6;
+}

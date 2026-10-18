@@ -8,6 +8,9 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.example.mediahub.model.Track;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
+
 
 /**
  * Builds and owns the JavaFX controls displayed by the media player.
@@ -30,11 +33,11 @@ public class PlayerLayout {
 
     public final ProgressBar progressBar = new ProgressBar(0);
 
-    private final VBox root;
+
+    private final BorderPane root;
 
     public PlayerLayout() {
         // Reserve enough space for the controls below the playlist.
-        trackList.setPrefHeight(250);
         volumeSlider.setPrefWidth(150);
         progressBar.setPrefWidth(400);
         progressBar.setMaxWidth(Double.MAX_VALUE);
@@ -45,14 +48,30 @@ public class PlayerLayout {
         HBox volumeControls = new HBox(8, new Label("Volume"), volumeSlider);
         HBox timeControls = new HBox(4, timeLabel, new Label("/"), durationLabel);
 
-        root = new VBox(
-                16, trackList, statusLabel, progressBar,
-                timeControls, playbackControls, volumeControls
+        // Keep the playlist in a dedicated left panel.
+        VBox playlistPanel = new VBox(12, new Label("Playlist"), trackList);
+        playlistPanel.setPrefWidth(240);
+        trackList.setPrefHeight(400);
+        VBox.setVgrow(trackList, Priority.ALWAYS);
+
+// Reserve the center for track information and future visual content.
+        VBox contentPanel = new VBox(16, new Label("Now playing"), statusLabel);
+        contentPanel.setStyle("-fx-padding: 20;");
+
+// Keep playback controls visible at the bottom of the window.
+        VBox controlsPanel = new VBox(
+                12, progressBar, timeControls, playbackControls, volumeControls
         );
-        root.setStyle("-fx-padding: 24;");
+        controlsPanel.setStyle("-fx-padding: 16;");
+
+        root = new BorderPane();
+        root.setLeft(playlistPanel);
+        root.setCenter(contentPanel);
+        root.setBottom(controlsPanel);
+        root.setStyle("-fx-padding: 16;");
     }
 
-    public VBox getRoot() {
+    public BorderPane getRoot() {
         return root;
     }
 }

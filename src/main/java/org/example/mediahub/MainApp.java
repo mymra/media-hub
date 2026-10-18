@@ -48,6 +48,14 @@ public class MainApp extends Application {
         // Display the controls assembled by PlayerLayout.
         Scene scene = new Scene(layout.getRoot(), 800, 500);
 
+        // Load the JavaFX stylesheet from the resources directory.
+        var stylesheet = getClass().getResource("/styles/player.css");
+
+        if (stylesheet != null) {
+            scene.getStylesheets().add(stylesheet.toExternalForm());
+        }
+
+
         // Configure and display the main window.
         stage.setTitle("Media Hub");
         stage.setScene(scene);
