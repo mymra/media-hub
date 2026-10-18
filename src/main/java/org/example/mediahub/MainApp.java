@@ -3,21 +3,11 @@ package org.example.mediahub;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import org.example.mediahub.model.Track;
-import javafx.collections.FXCollections;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
-import javafx.scene.control.Slider;
-import javafx.beans.binding.Bindings;
-import javafx.scene.control.ProgressBar;
 import org.example.mediahub.view.PlayerLayout;
+import org.example.mediahub.controller.PlayerController;
 
-import java.net.URL;
 
 /**
  * Entry point for the JavaFX media player prototype.
@@ -25,27 +15,15 @@ import java.net.URL;
 public class MainApp extends Application {
 
 
-    // Keep a reference to the player so it can be released when the window closes.
-    private MediaPlayer mediaPlayer;
+    // Keep the controller so its player can be released when JavaFX stops.
+    private PlayerController controller;
 
     @Override
     public void start(Stage stage) {
         // Create the controls used by this window.
         PlayerLayout layout = new PlayerLayout();
-        // Use the controls created by PlayerLayout.
-        Button playButton = layout.playButton;
-        Button pauseButton = layout.pauseButton;
-        Button stopButton = layout.stopButton;
-        Button previousButton = layout.previousButton;
-        Button nextButton = layout.nextButton;
 
-        Slider volumeSlider = layout.volumeSlider;
         ListView<Track> trackList = layout.trackList;
-
-        Label statusLabel = layout.statusLabel;
-        Label timeLabel = layout.timeLabel;
-        Label durationLabel = layout.durationLabel;
-        ProgressBar progressBar = layout.progressBar;
 
         // Add each track as a separate item in the playlist.
         Track sampleTrack = new Track("Sample track", "/media/sample.mp3");
@@ -56,175 +34,16 @@ public class MainApp extends Application {
                 new Track("Sample track 2", "/media/sample2.mp3")
         );
 
-        // Make the initial selection visible in the playlist.
-        trackList.getSelectionModel().select(sampleTrack);
+        controller = new PlayerController(layout);
 
-
-        // Play the currently selected track.
-        playButton.setOnAction(event -> {
-            if (mediaPlayer != null) {
-                mediaPlayer.play();
-            }
-        });
-
-        // Pause the currently loaded track without resetting its position.
-        pauseButton.setOnAction(event -> {
-            if (mediaPlayer != null) {
-                mediaPlayer.pause();
-            }
-        });
-
-        // Stop the currently loaded track and reset its position.
-        stopButton.setOnAction(event -> {
-            if (mediaPlayer != null) {
-                mediaPlayer.stop();
-            }
-        });
-
-        // Select the previous track; the selection listener handles playback.
-        previousButton.setOnAction(event -> {
-            int index = trackList.getSelectionModel().getSelectedIndex();
-            if (index > 0) {
-                trackList.getSelectionModel().select(index - 1);
-            }
-        });
-
-        // Select the next track; the selection listener handles playback.
-        nextButton.setOnAction(event -> {
-            int index = trackList.getSelectionModel().getSelectedIndex();
-            if (index >= 0 && index < trackList.getItems().size() - 1) {
-                trackList.getSelectionModel().select(index + 1);
-            }
-        });
-
-        // Load and play a new track when the selection changes.
+        // Let the controller load the newly selected track.
         trackList.getSelectionModel().selectedItemProperty().addListener(
-                (observable, previousTrack, selectedTrack) -> {
-                    if (selectedTrack == null) {
-                        return;
-                    }
-
-                    // Stop the previous track and release its resources.
-                    if (mediaPlayer != null) {
-
-                        // Prevent callbacks from the previous track from overwriting the new status.
-                        mediaPlayer.setOnReady(null);
-                        mediaPlayer.setOnPlaying(null);
-                        mediaPlayer.setOnPaused(null);
-                        mediaPlayer.setOnStopped(null);
-                        mediaPlayer.setOnEndOfMedia(null);
-                        mediaPlayer.setOnError(null);
-
-                        mediaPlayer.stop();
-                        mediaPlayer.volumeProperty().unbind();
-                        timeLabel.textProperty().unbind();
-                        timeLabel.setText("00:00");
-                        durationLabel.setText("00:00");
-
-                        // Disconnect the progress display from the previous player.
-                        progressBar.progressProperty().unbind();
-                        progressBar.setProgress(0);
-                        mediaPlayer.dispose();
-                        mediaPlayer = null;
-                    }
-
-                    URL audioResource = getClass().getResource(selectedTrack.getResourcePath());
-                    if (audioResource == null) {
-                        statusLabel.setText("Audio file not found: " + selectedTrack.getResourcePath());
-                        return;
-                    }
-
-                    try {
-                        Media media = new Media(audioResource.toExternalForm());
-                        mediaPlayer = new MediaPlayer(media);
-
-                        // Let the slider control the volume of the current player.
-                        mediaPlayer.volumeProperty().bind(volumeSlider.valueProperty());
-
-                        // Keep a stable reference for callbacks belonging to this track.
-                        MediaPlayer playerForTrack = mediaPlayer;
-
-
-                        // Recalculate the displayed time when playback time changes.
-                        timeLabel.textProperty().bind(
-                                Bindings.createStringBinding(
-                                        () -> {
-                                            double totalSeconds = playerForTrack.getCurrentTime().toSeconds();
-
-                                            // Avoid displaying an invalid time before the media is ready.
-                                            if (!Double.isFinite(totalSeconds) || totalSeconds < 0) {
-                                                return "00:00";
-                                            }
-
-                                            int minutes = (int) totalSeconds / 60;
-                                            int seconds = (int) totalSeconds % 60;
-                                            return String.format("%02d:%02d", minutes, seconds);
-                                        },
-                                        playerForTrack.currentTimeProperty()
-                                )
-                        );
-
-                        // Keep the progress bar synchronized with the current player.
-                        progressBar.progressProperty().bind(
-                                Bindings.createDoubleBinding(
-                                        () -> {
-                                            double elapsed = playerForTrack.getCurrentTime().toMillis();
-                                            double total = playerForTrack.getTotalDuration().toMillis();
-
-                                            // Duration may be unknown until the media is ready.
-                                            if (!Double.isFinite(elapsed) || !Double.isFinite(total) || total <= 0) {
-                                                return 0.0;
-                                            }
-
-                                            return Math.max(0.0, Math.min(1.0, elapsed / total));
-                                        },
-                                        playerForTrack.currentTimeProperty(),
-                                        playerForTrack.totalDurationProperty()
-                                )
-                        );
-                        // Update the visible status for the selected track.
-                        mediaPlayer.setOnReady(() -> {
-                            statusLabel.setText("Ready: " + selectedTrack.getTitle());
-
-                            // The total duration becomes available after the media is ready.
-                            double totalSeconds = playerForTrack.getTotalDuration().toSeconds();
-                            if (Double.isFinite(totalSeconds) && totalSeconds >= 0) {
-                                int minutes = (int) totalSeconds / 60;
-                                int seconds = (int) totalSeconds % 60;
-                                durationLabel.setText(String.format("%02d:%02d", minutes, seconds));
-                            }
-                        });
-                        mediaPlayer.setOnPlaying(() ->
-                                statusLabel.setText("Playing: " + selectedTrack.getTitle())
-                        );
-
-                        // Reflect playback state changes in the user interface.
-                        mediaPlayer.setOnPaused(() ->
-                                statusLabel.setText("Paused: " + selectedTrack.getTitle())
-                        );
-
-                        // Show that playback reached the end of the selected track.
-                        playerForTrack.setOnEndOfMedia(() ->
-                                statusLabel.setText("Finished: " + selectedTrack.getTitle())
-                        );
-                        mediaPlayer.setOnStopped(() ->
-                                statusLabel.setText("Stopped: " + selectedTrack.getTitle())
-                        );
-                        mediaPlayer.setOnError(() ->
-                                statusLabel.setText("Playback error: " + playerForTrack.getError().getMessage())
-                        );
-
-                        mediaPlayer.play();
-                    } catch (RuntimeException exception) {
-                        statusLabel.setText("Could not load: " + selectedTrack.getTitle());
-                    }
-                }
+                (observable, previousTrack, selectedTrack) ->
+                        controller.loadTrack(selectedTrack)
         );
 
-        // Trigger the selection listener for the initial track.
-        trackList.getSelectionModel().clearSelection();
+        // The listener loads the initial track when it is selected.
         trackList.getSelectionModel().select(sampleTrack);
-
 
         // Display the controls assembled by PlayerLayout.
         Scene scene = new Scene(layout.getRoot(), 800, 500);
@@ -236,9 +55,9 @@ public class MainApp extends Application {
     }
     @Override
     public void stop() {
-        // Release the media player when the application closes.
-        if (mediaPlayer != null) {
-            mediaPlayer.dispose();
+        // Release the active player when the application closes.
+        if (controller != null) {
+            controller.releaseCurrentPlayer();
         }
     }
     public static void main(String[] args) {
