@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
+import javafx.beans.binding.Bindings;
 
 import java.net.URL;
 
@@ -52,6 +53,8 @@ public class MainApp extends Application {
         trackList.getSelectionModel().select(sampleTrack);
 
         Label statusLabel = new Label("Ready: " + sampleTrack.getTitle());
+        Label timeLabel = new Label("00:00");
+        Label durationLabel = new Label("00:00");
 
         // Play the currently selected track.
         playButton.setOnAction(event -> {
@@ -101,6 +104,9 @@ public class MainApp extends Application {
                     if (mediaPlayer != null) {
                         mediaPlayer.stop();
                         mediaPlayer.volumeProperty().unbind();
+                        timeLabel.textProperty().unbind();
+                        timeLabel.setText("00:00");
+                        durationLabel.setText("00:00");
                         mediaPlayer.dispose();
                         mediaPlayer = null;
                     }
@@ -121,10 +127,37 @@ public class MainApp extends Application {
                         // Keep a stable reference for callbacks belonging to this track.
                         MediaPlayer playerForTrack = mediaPlayer;
 
-                        // Update the visible status for the selected track.
-                        mediaPlayer.setOnReady(() ->
-                                statusLabel.setText("Ready: " + selectedTrack.getTitle())
+
+                        // Recalculate the displayed time when playback time changes.
+                        timeLabel.textProperty().bind(
+                                Bindings.createStringBinding(
+                                        () -> {
+                                            double totalSeconds = playerForTrack.getCurrentTime().toSeconds();
+
+                                            // Avoid displaying an invalid time before the media is ready.
+                                            if (!Double.isFinite(totalSeconds) || totalSeconds < 0) {
+                                                return "00:00";
+                                            }
+
+                                            int minutes = (int) totalSeconds / 60;
+                                            int seconds = (int) totalSeconds % 60;
+                                            return String.format("%02d:%02d", minutes, seconds);
+                                        },
+                                        playerForTrack.currentTimeProperty()
+                                )
                         );
+                        // Update the visible status for the selected track.
+                        mediaPlayer.setOnReady(() -> {
+                            statusLabel.setText("Ready: " + selectedTrack.getTitle());
+
+                            // The total duration becomes available after the media is ready.
+                            double totalSeconds = playerForTrack.getTotalDuration().toSeconds();
+                            if (Double.isFinite(totalSeconds) && totalSeconds >= 0) {
+                                int minutes = (int) totalSeconds / 60;
+                                int seconds = (int) totalSeconds % 60;
+                                durationLabel.setText(String.format("%02d:%02d", minutes, seconds));
+                            }
+                        });
                         mediaPlayer.setOnPlaying(() ->
                                 statusLabel.setText("Playing: " + selectedTrack.getTitle())
                         );
@@ -154,7 +187,22 @@ public class MainApp extends Application {
         // Place playback controls on one horizontal row.
         HBox playbackControls = new HBox(8, previousButton, playButton, pauseButton, stopButton, nextButton);
         HBox volumeControls = new HBox(8, new Label("Volume"), volumeSlider);
-        VBox root = new VBox(16, trackList, statusLabel, playbackControls, volumeControls);
+
+        // Display elapsed and total time on the same row.
+        HBox timeControls = new HBox(
+                4,
+                timeLabel,
+                new Label("/"),
+                durationLabel
+        );
+        VBox root = new VBox(
+                16,
+                trackList,
+                statusLabel,
+                timeControls,
+                playbackControls,
+                volumeControls
+        );
         root.setStyle("-fx-padding: 24;");
 
         // Create a scene with an initial size of 800 × 500 pixels.
