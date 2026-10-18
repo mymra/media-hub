@@ -4,12 +4,12 @@ Media Hub is a JavaFX desktop application for playing and organizing audio.
 It starts as an OBJ2000 multimedia project and is intended to grow into a
 full-featured media library with its own REST API and PostgreSQL database.
 
-> Project status: early prototype. Currently, the application can play one
+> Project status: early prototype. Currently, the application can play three
 > local audio file. Features listed in the roadmap are planned, not implemented.
 
 ## Current functionality
 
-- Play three bundled MP3 file using JavaFX `MediaPlayer`.
+- Play three bundled MP3 files using JavaFX `MediaPlayer`.
 - Select a track from a playlist to start playback.
 - Control playback with Play, Pause, Stop, Previous, and Next.
 - Adjust volume while a track is playing. The selected volume is preserved when switching tracks.
@@ -17,6 +17,7 @@ full-featured media library with its own REST API and PostgreSQL database.
 - Display the selected track and playback status in the application window.
 - Display an error message when a media resource is missing or cannot be loaded.
 - Release the media player when the application closes.
+- Display playback progress and elapsed/total time.
 
 ## Requirements
 
@@ -28,10 +29,10 @@ full-featured media library with its own REST API and PostgreSQL database.
 1. Open the project in IntelliJ IDEA.
 2. Reload Maven dependencies if prompted.
 3. Run the Maven goal `javafx:run`.
-4. Click **Play**.
+4. Select a track from the playlist, or use the playback controls.
 
-The bundled test file is located at
-`src/main/resources/media/sample.mp3`.
+The bundled test files is located at
+`The bundled audio files are located in `src/main/resources/media/`.
 
 ## Roadmap
 
@@ -46,8 +47,8 @@ application in a working state.
 - [x] Add Play, Pause, Stop, Next, and Previous controls.
 - [x] Stop and dispose of the old player when switching tracks.
 - [x] Add volume control.
-- [ ] Display playback progress and elapsed/total time.
-- [ ] Synchronize player state and UI with JavaFX properties and bindings.
+- [x] Display playback progress and elapsed/total time.
+- [x] Synchronize player state and UI with JavaFX properties and bindings.
 - [x] Highlight the active track or otherwise indicate playback status.
 - [ ] Handle missing or unsupported files without crashing.
 - [ ] Keep the interface responsive and usable when resized.
@@ -100,3 +101,4 @@ JavaFX desktop client
               │
               ▼
          PostgreSQL database
+```

@@ -14,6 +14,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
 import javafx.beans.binding.Bindings;
+import javafx.scene.control.ProgressBar;
+
 
 import java.net.URL;
 
@@ -49,12 +51,22 @@ public class MainApp extends Application {
                 )
         );
 
+        // Reserve space for the player controls below the playlist.
+        trackList.setPrefHeight(250);
+
         // Make the initial selection visible in the playlist.
         trackList.getSelectionModel().select(sampleTrack);
 
         Label statusLabel = new Label("Ready: " + sampleTrack.getTitle());
         Label timeLabel = new Label("00:00");
         Label durationLabel = new Label("00:00");
+
+        // ProgressBar expects a value between 0.0 and 1.0.
+        ProgressBar progressBar = new ProgressBar(0);
+
+        // Give the bar a visible width before the layout stretches it.
+        progressBar.setPrefWidth(400);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
 
         // Play the currently selected track.
         playButton.setOnAction(event -> {
@@ -107,6 +119,10 @@ public class MainApp extends Application {
                         timeLabel.textProperty().unbind();
                         timeLabel.setText("00:00");
                         durationLabel.setText("00:00");
+
+                        // Disconnect the progress display from the previous player.
+                        progressBar.progressProperty().unbind();
+                        progressBar.setProgress(0);
                         mediaPlayer.dispose();
                         mediaPlayer = null;
                     }
@@ -144,6 +160,25 @@ public class MainApp extends Application {
                                             return String.format("%02d:%02d", minutes, seconds);
                                         },
                                         playerForTrack.currentTimeProperty()
+                                )
+                        );
+
+                        // Keep the progress bar synchronized with the current player.
+                        progressBar.progressProperty().bind(
+                                Bindings.createDoubleBinding(
+                                        () -> {
+                                            double elapsed = playerForTrack.getCurrentTime().toMillis();
+                                            double total = playerForTrack.getTotalDuration().toMillis();
+
+                                            // Duration may be unknown until the media is ready.
+                                            if (!Double.isFinite(elapsed) || !Double.isFinite(total) || total <= 0) {
+                                                return 0.0;
+                                            }
+
+                                            return Math.max(0.0, Math.min(1.0, elapsed / total));
+                                        },
+                                        playerForTrack.currentTimeProperty(),
+                                        playerForTrack.totalDurationProperty()
                                 )
                         );
                         // Update the visible status for the selected track.
@@ -199,6 +234,7 @@ public class MainApp extends Application {
                 16,
                 trackList,
                 statusLabel,
+                progressBar,
                 timeControls,
                 playbackControls,
                 volumeControls
