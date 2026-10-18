@@ -28,6 +28,9 @@ public class PlayerLayout {
     public final Button nextButton = new Button("Next");
 
     public final Slider volumeSlider = new Slider(0.0, 1.0, 0.5);
+
+    // Allows the user to choose a playback position.
+    public final Slider seekSlider = new Slider(0.0, 1.0, 0.0);
     public final ListView<Track> trackList = new ListView<>();
 
     public final Label statusLabel = new Label("Ready");
@@ -51,6 +54,7 @@ public class PlayerLayout {
 
         // Reserve enough space for the controls below the playlist.
         volumeSlider.setPrefWidth(150);
+        seekSlider.setMaxWidth(Double.MAX_VALUE);
         progressBar.setPrefWidth(400);
         progressBar.setMaxWidth(Double.MAX_VALUE);
 
@@ -85,7 +89,7 @@ public class PlayerLayout {
         );
 // Keep playback controls visible at the bottom of the window.
         VBox controlsPanel = new VBox(
-                12, progressBar, timeControls, playbackControls, volumeControls
+                12, progressBar, seekSlider, timeControls, playbackControls, volumeControls
         );
         controlsPanel.setStyle("-fx-padding: 16;");
 

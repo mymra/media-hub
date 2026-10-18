@@ -154,6 +154,33 @@ public class PlayerController {
             }
         });
 
+        // Follow playback progress unless the user is dragging the slider.
+        layout.progressBar.progressProperty().addListener((observable, oldValue, newValue) -> {
+            if (!draggingSeekSlider) {
+                layout.seekSlider.setValue(newValue.doubleValue());
+            }
+        });
+
+        // Pause automatic slider updates when the user starts dragging.
+        layout.seekSlider.setOnMousePressed(event -> draggingSeekSlider = true);
+
+        // Seek only after the user releases the slider thumb.
+        layout.seekSlider.setOnMouseReleased(event -> {
+            draggingSeekSlider = false;
+            if (mediaPlayer == null) {
+                return;
+            }
+
+
+            double totalMillis = mediaPlayer.getTotalDuration().toMillis();
+            if (!Double.isFinite(totalMillis) || totalMillis <= 0) {
+                return;
+            }
+
+            double fraction = layout.seekSlider.getValue();
+            mediaPlayer.seek(javafx.util.Duration.millis(totalMillis * fraction));
+        });
+
         // Changing the selection triggers the existing track-loading listener.
         layout.previousButton.setOnAction(event -> {
             int index = layout.trackList.getSelectionModel().getSelectedIndex();
@@ -188,17 +215,23 @@ public class PlayerController {
         mediaPlayer.stop();
         mediaPlayer.volumeProperty().unbind();
 
+
+
         // Disconnect UI bindings before disposing of their source player.
         layout.timeLabel.textProperty().unbind();
         layout.timeLabel.setText("00:00");
 
         layout.progressBar.progressProperty().unbind();
         layout.progressBar.setProgress(0);
+        layout.seekSlider.setValue(0);
         layout.durationLabel.setText("00:00");
 
         mediaPlayer.dispose();
         mediaPlayer = null;
     }
+
+    // Prevent playback updates from moving the thumb while the user drags it.
+    private boolean draggingSeekSlider;
 
     /**
      * Loads and starts the selected track.
