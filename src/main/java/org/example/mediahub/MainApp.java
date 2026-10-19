@@ -34,7 +34,8 @@ public class MainApp extends Application {
                 new Track("Sample track 1", "/media/sample1.mp3"),
                 new Track("Sample track 2", "/media/sample2.mp3"),
                 new Track("Sample video ", "/media/sample_video.mp4"),
-                new Track("Sample video 2", "/media/sample_video2.mp4")
+                new Track("u.d.o.mp4", "/media/u.d.o.mp4"),
+                new Track("Danzig's _mother", "Danzig's _mother.mp4")
         );
 
         controller = new PlayerController(layout);
