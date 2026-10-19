@@ -84,3 +84,17 @@
 .content-panel {
     -fx-padding: 0 0 0 20;
 }
+/* Keep playback controls compact and close to the bottom edge. */
+.controls-panel {
+    -fx-padding: 8 16 8 16;
+}
+/* Use a neutral background for videos with different aspect ratios. */
+.artwork-card.video-card {
+    -fx-background-color: #000000;
+    -fx-border-color: #000000;
+}
+/* Black letterboxing for media with an aspect ratio different from the card. */
+.artwork-card.video-card {
+    -fx-background-color: #000000;
+    -fx-border-color: #000000;
+}

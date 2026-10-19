@@ -127,7 +127,9 @@ public class PlayerController {
                 // Mark the final track so Play can start it again.
                 finishedCurrentTrack = true;
                 layout.statusLabel.setText("Finished: " + track.getTitle());
+
             }
+
         });
 
 
@@ -253,6 +255,8 @@ public class PlayerController {
         layout.mediaView.setVisible(false);
         layout.artworkSymbol.setVisible(true);
 
+        // Restore the audio artwork style when no video is attached.
+        layout.artworkCard.getStyleClass().remove("video-card");
         mediaPlayer.dispose();
         mediaPlayer = null;
     }
@@ -290,6 +294,15 @@ public class PlayerController {
             layout.mediaView.setMediaPlayer(isVideo ? player : null);
             layout.mediaView.setVisible(isVideo);
             layout.artworkSymbol.setVisible(!isVideo);
+
+            // Use black letterboxing for video and the gradient for audio artwork.
+            if (isVideo) {
+                if (!layout.artworkCard.getStyleClass().contains("video-card")) {
+                    layout.artworkCard.getStyleClass().add("video-card");
+                }
+            } else {
+                layout.artworkCard.getStyleClass().remove("video-card");
+            }
             bindElapsedTime(player);
             bindProgress(player);
             configureReadyStatus(player, track);

@@ -13,6 +13,7 @@ import javafx.scene.layout.Priority;
 import javafx.beans.binding.Bindings;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.MediaView;
+import javafx.geometry.Pos;
 
 
 /**
@@ -50,6 +51,9 @@ public class PlayerLayout {
     // Displays video inside the existing artwork area.
     public final MediaView mediaView = new MediaView();
 
+    // Holds either the audio artwork symbol or the video display.
+    public final StackPane artworkCard = new StackPane(artworkSymbol);
+
     private final BorderPane root;
 
     public PlayerLayout() {
@@ -66,7 +70,14 @@ public class PlayerLayout {
         HBox playbackControls = new HBox(
                 8, previousButton, playButton, pauseButton, stopButton, nextButton
         );
+        // Center playback buttons within the controls panel.
+        playbackControls.setAlignment(Pos.CENTER);
         HBox volumeControls = new HBox(8, new Label("Volume"), volumeSlider);
+        // Keep buttons centered while placing volume controls on the right.
+        BorderPane controlRow = new BorderPane();
+        controlRow.setCenter(playbackControls);
+        controlRow.setRight(volumeControls);
+
         HBox timeControls = new HBox(4, timeLabel, new Label("/"), durationLabel);
 
         // Keep the playlist in a dedicated left panel.
@@ -75,10 +86,9 @@ public class PlayerLayout {
         trackList.setPrefHeight(400);
         VBox.setVgrow(trackList, Priority.ALWAYS);
 
-        // Shown when the selected track has no video.
-        StackPane artworkCard = new StackPane(artworkSymbol);
-        artworkCard.setPrefSize(480, 270);
-        artworkCard.setMaxSize(480, 270);
+        // Give narrower videos more vertical space without cropping them.
+        artworkCard.setPrefSize(480, 340);
+        artworkCard.setMaxSize(480, 340);
 
         artworkCard.getStyleClass().add("artwork-card");
         artworkSymbol.getStyleClass().add("artwork-symbol");
@@ -86,26 +96,30 @@ public class PlayerLayout {
 
         // Keep the video within the artwork card instead of adding a new layout row.
         mediaView.setFitWidth(480);
-        mediaView.setFitHeight(270);
+        mediaView.setFitHeight(340);
         mediaView.setPreserveRatio(true);
 
         mediaView.setVisible(false);
-        mediaView.setManaged(false);
+
         artworkCard.getChildren().add(mediaView);
+
+        // Center video frames that do not fill the 16:9 artwork area.
+        StackPane.setAlignment(mediaView, Pos.CENTER);
 
 // Reserve the center for track information and future visual content.
         VBox contentPanel = new VBox(
                 16,
-                new Label("Now playing"),
                 trackTitleLabel,
                 artworkCard,
                 statusLabel
         );
 // Keep playback controls visible at the bottom of the window.
         VBox controlsPanel = new VBox(
-                12, progressBar, seekSlider, timeControls, playbackControls, volumeControls
+                8, seekSlider, timeControls, controlRow
         );
-        controlsPanel.setStyle("-fx-padding: 16;");
+
+        // Style the bottom controls independently from the other panels.
+        controlsPanel.getStyleClass().add("controls-panel");
 
         root = new BorderPane();
         root.setLeft(playlistPanel);
