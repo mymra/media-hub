@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.beans.binding.Bindings;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.MediaView;
 
 
 /**
@@ -44,6 +45,10 @@ public class PlayerLayout {
 
     public final ProgressBar progressBar = new ProgressBar(0);
 
+    public final Label artworkSymbol = new Label("♫");
+
+    // Displays video inside the existing artwork area.
+    public final MediaView mediaView = new MediaView();
 
     private final BorderPane root;
 
@@ -70,14 +75,23 @@ public class PlayerLayout {
         trackList.setPrefHeight(400);
         VBox.setVgrow(trackList, Priority.ALWAYS);
 
-        // Placeholder for album artwork or a future video display.
-        Label artworkSymbol = new Label("♫");
+        // Shown when the selected track has no video.
         StackPane artworkCard = new StackPane(artworkSymbol);
-        artworkCard.setPrefSize(240, 240);
-        artworkCard.setMaxSize(240, 240);
+        artworkCard.setPrefSize(480, 270);
+        artworkCard.setMaxSize(480, 270);
 
         artworkCard.getStyleClass().add("artwork-card");
         artworkSymbol.getStyleClass().add("artwork-symbol");
+
+
+        // Keep the video within the artwork card instead of adding a new layout row.
+        mediaView.setFitWidth(480);
+        mediaView.setFitHeight(270);
+        mediaView.setPreserveRatio(true);
+
+        mediaView.setVisible(false);
+        mediaView.setManaged(false);
+        artworkCard.getChildren().add(mediaView);
 
 // Reserve the center for track information and future visual content.
         VBox contentPanel = new VBox(
@@ -117,6 +131,7 @@ public class PlayerLayout {
                 )
         );
     }
+
 
     public BorderPane getRoot() {
         return root;

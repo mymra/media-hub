@@ -114,9 +114,22 @@ public class PlayerController {
                 layout.statusLabel.setText("Stopped: " + track.getTitle())
         );
 
-        player.setOnEndOfMedia(() ->
-                layout.statusLabel.setText("Finished: " + track.getTitle())
-        );
+        // Continue with the next track, but stop at the end of the playlist.
+        player.setOnEndOfMedia(() -> {
+            int currentIndex = layout.trackList.getSelectionModel().getSelectedIndex();
+            int lastIndex = layout.trackList.getItems().size() - 1;
+
+            if (currentIndex >= 0 && currentIndex < lastIndex) {
+
+                // Changing the selection calls loadTrack() through the existing listener.
+                layout.trackList.getSelectionModel().select(currentIndex + 1);
+            } else {
+                // Mark the final track so Play can start it again.
+                finishedCurrentTrack = true;
+                layout.statusLabel.setText("Finished: " + track.getTitle());
+            }
+        });
+
 
         player.setOnError(() -> {
             // Read the error from this player, not a different selected track.
@@ -131,14 +144,21 @@ public class PlayerController {
 
     public PlayerController(PlayerLayout layout) {
         this.layout = layout;
-        // Read the current player on each click because track changes replace it.
         layout.playButton.setOnAction(event -> {
             MediaPlayer player = mediaPlayer;
-            if (player != null) {
-                player.play();
+            if (player == null) {
+                return;
             }
-        });
 
+            if (finishedCurrentTrack) {
+                // Reload the selected track instead of relying on the media player's end state.
+                finishedCurrentTrack = false;
+                loadTrack(layout.trackList.getSelectionModel().getSelectedItem());
+                return;
+            }
+
+            player.play();
+        });
 
         layout.pauseButton.setOnAction(event -> {
             MediaPlayer player = mediaPlayer;
@@ -195,6 +215,8 @@ public class PlayerController {
                 layout.trackList.getSelectionModel().select(index + 1);
             }
         });
+
+
     }
     /**
      * Stops and releases the current player before another track is loaded.
@@ -226,9 +248,17 @@ public class PlayerController {
         layout.seekSlider.setValue(0);
         layout.durationLabel.setText("00:00");
 
+        // Detach the video view before disposing of its player.
+        layout.mediaView.setMediaPlayer(null);
+        layout.mediaView.setVisible(false);
+        layout.artworkSymbol.setVisible(true);
+
         mediaPlayer.dispose();
         mediaPlayer = null;
     }
+
+    // Set when the final track reaches its end.
+    private boolean finishedCurrentTrack;
 
     // Prevent playback updates from moving the thumb while the user drags it.
     private boolean draggingSeekSlider;
@@ -240,6 +270,7 @@ public class PlayerController {
         if (track == null) {
             return;
         }
+        finishedCurrentTrack = false;
 
         releaseCurrentPlayer();
 
@@ -252,6 +283,13 @@ public class PlayerController {
         try {
             // Create the player and connect it to the current UI controls.
             MediaPlayer player = createPlayer(audioResource.toExternalForm());
+
+            // Show video for MP4 tracks; show artwork for audio tracks.
+            boolean isVideo = track.getResourcePath().toLowerCase().endsWith(".mp4");
+
+            layout.mediaView.setMediaPlayer(isVideo ? player : null);
+            layout.mediaView.setVisible(isVideo);
+            layout.artworkSymbol.setVisible(!isVideo);
             bindElapsedTime(player);
             bindProgress(player);
             configureReadyStatus(player, track);

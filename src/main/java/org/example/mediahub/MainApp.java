@@ -32,7 +32,9 @@ public class MainApp extends Application {
         trackList.getItems().addAll(
                 sampleTrack,
                 new Track("Sample track 1", "/media/sample1.mp3"),
-                new Track("Sample track 2", "/media/sample2.mp3")
+                new Track("Sample track 2", "/media/sample2.mp3"),
+                new Track("Sample video ", "/media/sample_video.mp4"),
+                new Track("Sample video 2", "/media/sample_video2.mp4")
         );
 
         controller = new PlayerController(layout);
@@ -47,7 +49,7 @@ public class MainApp extends Application {
         trackList.getSelectionModel().select(sampleTrack);
 
         // Display the controls assembled by PlayerLayout.
-        Scene scene = new Scene(layout.getRoot(), 800, 500);
+        Scene scene = new Scene(layout.getRoot(), 785, 575);
 
         // Load the JavaFX stylesheet from the resources directory.
         var stylesheet = getClass().getResource("/styles/player.css");
@@ -67,8 +69,8 @@ public class MainApp extends Application {
         stage.setScene(scene);
 
         // Prevent resizing the window below the usable desktop layout size.
-        stage.setMinWidth(850);
-        stage.setMinHeight(550);
+        stage.setMinWidth(800);
+        stage.setMinHeight(635);
 
         stage.show();
     }
