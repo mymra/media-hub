@@ -4,35 +4,51 @@ Media Hub is a JavaFX desktop application for playing and organizing audio.
 It starts as an OBJ2000 multimedia project and is intended to grow into a
 full-featured media library with its own REST API and PostgreSQL database.
 
-> Project status: early prototype. Currently, the application can play three
-> local audio file. Features listed in the roadmap are planned, not implemented.
+> Project status: working JavaFX audio and video player. The application
+> includes three bundled MP3 tracks and two MP4 video. REST API and
+> PostgreSQL features are planned, not implemented.
 
 ## Current functionality
 
-- Play three bundled MP3 files using JavaFX `MediaPlayer`.
-- Select a track from a playlist to start playback.
+- Play three bundled MP3 tracks and two MP4 video using JavaFX `MediaPlayer`.
+- Display video in the player area using JavaFX `MediaView`.
+- Select a track from the playlist to start playback.
 - Control playback with Play, Pause, Stop, Previous, and Next.
-- Adjust volume while a track is playing. The selected volume is preserved when switching tracks.
-- Stop and dispose of the previous player when switching tracks.
-- Display the selected track and playback status in the application window.
-- Display an error message when a media resource is missing or cannot be loaded.
-- Release the media player when the application closes.
-- Display playback progress and elapsed/total time.
+- Automatically play the next item when a track finishes; stop at the end of the playlist.
+- Replay the last item by pressing Play after it finishes.
+- Adjust volume while playing; preserve the selected volume when switching tracks.
+- View elapsed time, total duration, and playback progress.
+- Seek to another position using the playback slider.
+- Display the selected item, playback status, and errors in the interface.
+- Stop and release the previous player when switching items or closing the application.
+- Use a dark-themed interface with an artwork placeholder for audio and a video display for MP4.
+
 
 ## Requirements
 
 - JDK 24
-- Maven
+- JavaFX SDK 25.0.2 with `javafx.controls` and `javafx.media`
+- IntelliJ IDEA
 
-## Run the current prototype
+## Run
 
-1. Open the project in IntelliJ IDEA.
-2. Reload Maven dependencies if prompted.
-3. Run the Maven goal `javafx:run`.
-4. Select a track from the playlist, or use the playback controls.
+This project uses JavaFX directly and does not use Maven.
 
-The bundled test files is located at
-`The bundled audio files are located in `src/main/resources/media/`.
+1. Open the project folder in IntelliJ IDEA.
+2. Import it as a Java project if IntelliJ does not detect a module automatically.
+3. In **File → Project Structure → Modules**, mark:
+    - `src/main/java` as **Sources**;
+    - `src/main/resources` as **Resources**.
+4. In **Project Structure → Libraries**, add the `lib` folder from your JavaFX SDK and attach that library to the project module.
+5. Create an **Application** run configuration:
+    - **Main class:** `org.example.mediahub.MainApp`
+    - **Module:** `media-hub`
+    - **VM options** (replace the path with your own JavaFX SDK location):
+
+   ```text
+   --module-path "C:\JavaFX\javafx-sdk-25.0.2\lib" --add-modules javafx.controls,javafx.media
+   ```
+6. Run the Application configuration.
 
 ## Roadmap
 
@@ -51,17 +67,20 @@ application in a working state.
 - [x] Synchronize player state and UI with JavaFX properties and bindings.
 - [x] Highlight the active track or otherwise indicate playback status.
 - [ ] Handle missing or unsupported files without crashing.
-- [ ] Keep the interface responsive and usable when resized.
+- [x] Keep the interface responsive and usable when resized.
 
 ### Milestone 2 — Advanced local player
 
-- [ ] Automatically play the next track.
+- [x] Automatically play the next item until the playlist ends.
 - [ ] Add repeat-one, repeat-all, and shuffle modes.
-- [ ] Allow seeking and skipping forward/backward.
+- [x] Allow seeking to a position in the current media item.
 - [ ] Add search, sorting, and filtering.
 - [ ] Add favorites and a playback queue.
 - [ ] Add keyboard shortcuts and improve accessibility.
-- [ ] Improve the layout and provide a consistent visual theme.
+- [x] Improve the layout and provide a consistent visual theme.
+
+> Milestones 3 and 4 are ideas for development after the OBJ2000 submission.
+> They are not part of the submitted JavaFX project.
 
 ### Milestone 3 — REST API and PostgreSQL
 
