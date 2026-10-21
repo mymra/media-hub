@@ -1,16 +1,15 @@
-/* Base colors and typography for the application. */
+/* Application */
 .root {
     -fx-background-color: #121826;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
     -fx-font-size: 14px;
 }
 
-/* Default text color. */
 .label {
     -fx-text-fill: #e7edf8;
 }
 
-/* Make the playlist distinct from the player area. */
+/* Playlist */
 .list-view {
     -fx-background-color: #1c2638;
     -fx-control-inner-background: #1c2638;
@@ -30,7 +29,43 @@
     -fx-text-fill: white;
 }
 
-/* Playback buttons. */
+.playlist-panel {
+    -fx-padding: 0 20 0 0;
+}
+
+/* Main content */
+.content-panel {
+    -fx-padding: 0 0 0 20;
+}
+
+.track-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.artwork-card {
+    -fx-background-color: linear-gradient(to bottom right, #245aa8, #513b9a);
+    -fx-background-radius: 18;
+    -fx-border-color: #647ba5;
+    -fx-border-radius: 18;
+}
+
+.artwork-card.video-card {
+    -fx-background-color: #000000;
+    -fx-border-color: #000000;
+}
+
+.artwork-symbol {
+    -fx-font-size: 96px;
+    -fx-text-fill: #ffffff;
+}
+
+/* Playback controls */
+.controls-panel {
+    -fx-padding: 8 16 8 16;
+}
+
 .button {
     -fx-background-color: #2b3b54;
     -fx-text-fill: #f4f7fc;
@@ -47,54 +82,73 @@
     -fx-background-color: #1c7ed6;
 }
 
-/* Playback progress. */
-.progress-bar > .track {
-    -fx-background-color: #2b3b54;
-    -fx-background-radius: 6;
+.primary-play-button {
+    -fx-font-size: 22px;
+    -fx-min-width: 68px;
+    -fx-pref-width: 68px;
+    -fx-min-height: 52px;
+    -fx-pref-height: 52px;
+    -fx-background-color: #245aa8;
 }
 
-.progress-bar > .bar {
-    -fx-background-color: #42b3ff;
-    -fx-background-radius: 6;
+.primary-play-button:hover {
+    -fx-background-color: #3274cc;
 }
 
-/* Prominent title for the selected track. */
-.track-title {
-    -fx-font-size: 28px;
+.stop-button,
+.navigation-button {
+    -fx-min-width: 48px;
+    -fx-pref-width: 48px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+}
+
+/* Playback position */
+.custom-progress-track {
+    -fx-fill: #34435a;
+}
+
+.custom-progress-fill {
+    -fx-fill: #42b3ff;
+}
+
+/* Rectangles draw the line; the slider supplies the draggable thumb. */
+.seek-slider .track {
+    -fx-background-color: transparent;
+    -fx-pref-height: 6px;
+}
+
+.seek-slider .thumb {
+    -fx-background-color: #e7edf8;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 10px;
+    -fx-pref-height: 10px;
+}
+
+.seek-slider .thumb:hover {
+    -fx-background-color: #75c8ff;
+}
+
+/* Volume */
+.volume-label {
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-text-fill: #ffffff;
-}
-/* Artwork placeholder in the center panel. */
-.artwork-card {
-    -fx-background-color: linear-gradient(to bottom right, #245aa8, #513b9a);
-    -fx-background-radius: 18;
-    -fx-border-color: #647ba5;
-    -fx-border-radius: 18;
+    -fx-text-fill: #9eabc0;
 }
 
-.artwork-symbol {
-    -fx-font-size: 96px;
-    -fx-text-fill: #ffffff;
-}
-/* Separate the playlist from the central content. */
-.playlist-panel {
-    -fx-padding: 0 20 0 0;
+.volume-slider .track {
+    -fx-background-color: #34435a;
+    -fx-background-radius: 4;
+    -fx-pref-height: 5px;
 }
 
-.content-panel {
-    -fx-padding: 0 0 0 20;
+.volume-slider .thumb {
+    -fx-background-color: #42b3ff;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
 }
-/* Keep playback controls compact and close to the bottom edge. */
-.controls-panel {
-    -fx-padding: 8 16 8 16;
-}
-/* Use a neutral background for videos with different aspect ratios. */
-.artwork-card.video-card {
-    -fx-background-color: #000000;
-    -fx-border-color: #000000;
-}
-/* Black letterboxing for media with an aspect ratio different from the card. */
-.artwork-card.video-card {
-    -fx-background-color: #000000;
-    -fx-border-color: #000000;
+
+.volume-slider .thumb:hover {
+    -fx-background-color: #75c8ff;
 }
