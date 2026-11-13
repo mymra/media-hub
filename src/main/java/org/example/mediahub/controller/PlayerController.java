@@ -119,7 +119,7 @@ public class PlayerController {
             configureReadyStatus(player, track);
             configurePlaybackStatus(player, track);
 
-            player.play();
+
         } catch (RuntimeException exception) {
             // Setup can fail after the player was created.
             releaseCurrentPlayer();
@@ -210,6 +210,8 @@ public class PlayerController {
             if (totalDuration == null || !Double.isFinite(totalDuration.toSeconds())) {
                 return;
             }
+            // Start playback after the selected media is ready.
+            player.play();
 
             int totalSeconds = (int) totalDuration.toSeconds();
             layout.durationLabel.setText(
